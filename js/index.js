@@ -1,6 +1,11 @@
 import { getProducts } from './service.js';
-import { dom } from './constant.js';
 let productsList = []; // 商品列表
+
+const productWrapDOM = document.querySelector('.productWrap');
+
+const dom = {
+    productWarp: productWrapDOM
+}
 
 async function init() {
     try {
