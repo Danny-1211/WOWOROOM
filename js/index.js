@@ -1,11 +1,11 @@
 import { getProducts } from './service.js';
-import { filter_type } from './constant.js';
+import { FILTER_TYPE } from './constant.js';
 let productsList = []; // 商品列表
 
 const productWrapDom = document.querySelector('.productWrap');
 const productSelectDom = document.querySelector('.productSelect');
 
-const dom = {
+const DOM = {
     productWarp: productWrapDom,
     productSelect: productSelectDom
 }
@@ -35,12 +35,11 @@ function renderCard(productsList) {
         `
     }).join('');
 
-    dom.productWarp.innerHTML = tempStr;
-
+    DOM.productWarp.innerHTML = tempStr;
 }
 
-dom.productSelect.addEventListener('change', function (e) {
-    let productsListByCategory = e.target.value !== filter_type.all ? productsList.filter(product => { return product.category === e.target.value }) : productsList;
+DOM.productSelect.addEventListener('change', function (e) {
+    let productsListByCategory = e.target.value !== FILTER_TYPE.ALL ? productsList.filter(product => { return product.category === e.target.value }) : productsList;
     renderCard(productsListByCategory);
 })
 
