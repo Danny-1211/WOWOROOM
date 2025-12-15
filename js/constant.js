@@ -6,6 +6,11 @@ const path = {
     products: API_PRODUCTS
 }
 
+const filter_type = {
+    all: '全部'
+}
+
 export {
-    path
+    path,
+    filter_type
 }
