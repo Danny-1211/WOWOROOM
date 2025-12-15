@@ -36,8 +36,8 @@ function renderCard(productsList) {
                 alt=${product.title}>
             <a href="#" class="addCardBtn">加入購物車</a>
             <h3>${product.title}</h3>
-            <del class="originPrice">NT$${product.origin_price}</del>
-            <p class="nowPrice">NT$${product.price}</p>
+            <del class="originPrice">NT$${product.origin_price.toLocaleString()}</del>
+            <p class="nowPrice">NT$${product.price.toLocaleString()}</p>
         </li>
         `
     }).join('');
@@ -65,9 +65,9 @@ function renderCartList(cartsList) {
                     <p>${cart.product.title}</p>
                 </div>
             </td>
-            <td>${cart.product.price}</td>
+            <td>${cart.product.price.toLocaleString()}</td>
             <td>${cart.quantity}</td>
-            <td>${cart.product.price * cart.quantity}</td>
+            <td>${(cart.product.price * cart.quantity).toLocaleString()}</td>
             <td class="discardBtn">
                 <a href="#" class="material-icons">
                     clear
