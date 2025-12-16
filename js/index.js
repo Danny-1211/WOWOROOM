@@ -1,4 +1,4 @@
-import { getProducts, getCarts, addCarts, deleteAllCarts, deleteSingleCart } from './service.js';
+import { getProducts, getCarts, addCarts, deleteAllCarts, deleteSingleCart, addClientOrder } from './service.js';
 import { FILTER_TYPE } from './constant.js';
 
 let productsList = []; // 商品列表
@@ -7,12 +7,22 @@ let cartsList = []; // 購物車列表
 const productWrapDom = document.querySelector('.productWrap');
 const productSelectDom = document.querySelector('.productSelect');
 const shoppingCartTableDom = document.querySelector('.shoppingCart-table');
-
+const orderFormDom = document.querySelector('.orderInfo-form');
 
 const DOM = {
     productWarp: productWrapDom,
     productSelect: productSelectDom,
-    shoppingCarts: shoppingCartTableDom
+    shoppingCarts: shoppingCartTableDom,
+    orderForm: orderFormDom,
+}
+
+const INPUT_DOM = {
+    name: document.querySelector('#customerName'),
+    phone: document.querySelector('#customerPhone'),
+    email: document.querySelector('#customerEmail'),
+    address: document.querySelector('#customerAddress'),
+    payment: document.querySelector('#tradeWay'),
+    submitBtn: document.querySelector('.orderInfo-btn')
 }
 
 // 初始化
@@ -107,6 +117,63 @@ async function updateCart() {
     }
 }
 
+function validForm() {
+    let isValid = true;
+    const cols = [
+        { key: 'name', msgName: 'customerName' },
+        { key: 'phone', msgName: 'customerPhone' },
+        { key: 'email', msgName: 'customerEmail' },
+        { key: 'address', msgName: 'customerAddress' }
+    ];
+
+    cols.forEach(col => {
+        const input = INPUT_DOM[col.key];
+        let message = document.querySelector(`.orderInfo-${col.msgName}-message`);
+        if (input.value.trim() === '') {
+            message.textContent = '必填';
+            input.classList.add('error');
+            isValid = false;
+        } else {
+            message.innerHTML = '';
+            input.classList.remove('error');
+        }
+    })
+
+    return isValid;
+}
+
+async function submitOrder(e) {
+    e.preventDefault();
+
+    if (!validForm()) {
+        return;
+    }
+
+    let obj = {
+        name: INPUT_DOM.name.value,
+        tel: INPUT_DOM.phone.value,
+        email: INPUT_DOM.email.value,
+        address: INPUT_DOM.address.value,
+        payment: INPUT_DOM.payment.value
+    }
+
+    let para = {
+        "data": {
+            "user": obj
+        }
+    }
+
+    try {
+        await addClientOrder(para);
+        await updateCart();
+        DOM.orderForm.reset();
+    } catch (error) {
+        console.error('建立訂單', error);
+    }
+
+}
+
+
 // 目錄選擇
 DOM.productSelect.addEventListener('change', function (e) {
     let productsListByCategory = e.target.value !== FILTER_TYPE.ALL ? productsList.filter(product => { return product.category === e.target.value }) : productsList;
@@ -168,9 +235,11 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
                 console.error('刪除全部購物車失敗', error);
             }
     }
-
-
-
 })
+
+INPUT_DOM.submitBtn.addEventListener('click', submitOrder)
+
+
+
 
 init();
