@@ -33,10 +33,18 @@ async function addCarts(para) {
     }
 }
 
-
+// 刪除全部購物車
+async function deleteAllCarts() {
+    try {
+        const res = await axios.delete(PATH.CARTS);
+    } catch (error) {
+        console.error('刪除全部購物車資料時發生錯誤:', error);
+    }
+}
 
 export {
     getProducts,
     getCarts,
-    addCarts
+    addCarts,
+    deleteAllCarts
 }

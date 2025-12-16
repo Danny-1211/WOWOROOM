@@ -1,4 +1,4 @@
-import { getProducts, getCarts, addCarts } from './service.js';
+import { getProducts, getCarts, addCarts, deleteAllCarts } from './service.js';
 import { FILTER_TYPE } from './constant.js';
 
 let productsList = []; // 商品列表
@@ -49,6 +49,7 @@ function renderCard(productsList) {
 
 // 渲染購物車列表
 function renderCartList(cartsList) {
+    console.log(cartsList)
     let tempStr = `        
         <tr>
             <th width="40%">品項</th>
@@ -79,6 +80,22 @@ function renderCartList(cartsList) {
         `
     }).join('');
 
+    if (cartsList.carts.length !== 0) {
+        tempStr += `
+            <tr>
+                <td>
+                    <button type="button"  class="discardAllBtn">刪除所有品項</button>
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    <p>總金額</p>
+                </td>
+                <td>NT$${cartsList.finalTotal.toLocaleString()}</td>
+            </tr>
+        `
+    }
+
     DOM.shoppingCarts.innerHTML = tempStr;
 }
 
@@ -100,7 +117,7 @@ DOM.productSelect.addEventListener('change', function (e) {
 
 // 加入購物車按鈕
 DOM.productWarp.addEventListener('click', async function (e) {
-    let addCardBtn = e.target.closest('.addCardBtn');
+    const addCardBtn = e.target.closest('.addCardBtn');
 
     if (!addCardBtn) { // 如果找不到這個按鈕防呆
         return;
@@ -121,8 +138,24 @@ DOM.productWarp.addEventListener('click', async function (e) {
         await addCarts(para);
         await updateCart();
     } catch (error) {
-        console.error('新增購物車失敗', err);
+        console.error('新增購物車失敗', error);
     }
+})
+
+// 刪除購物車全部品項 & 刪除單筆購物車內容
+DOM.shoppingCarts.addEventListener('click', async function (e) {
+    const discardAllBtn = e.target.closest('.discardAllBtn');
+    if (!discardAllBtn) { // 如果找不到這個按鈕防呆
+        return;
+    }
+
+    try {
+        await deleteAllCarts();
+        await updateCart();
+    } catch (error) {
+        console.error('刪除全部購物車失敗', error);
+    }
+
 })
 
 init();
