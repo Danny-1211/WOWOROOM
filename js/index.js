@@ -121,7 +121,7 @@ DOM.productWarp.addEventListener('click', async function (e) {
         return;
     }
 
-    let quantity = !(cartsList.carts.find(cart => cart.product.id == addCardBtn.dataset.id)) ? 1 : cartsList.carts.find(cart => cart.product.id == addCardBtn.dataset.id).quantity
+    let quantity = !(cartsList.carts.find(cart => cart.product.id == addCardBtn.dataset.id)) ? 0 : cartsList.carts.find(cart => cart.product.id == addCardBtn.dataset.id).quantity
 
     quantity += Number(addCardBtn.dataset.count);
 
