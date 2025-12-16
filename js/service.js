@@ -23,8 +23,20 @@ async function getCarts() {
     }
 }
 
+// 新增購物車
+async function addCarts(para) {
+    try {
+        const res = await axios.post(PATH.CARTS, para);
+    } catch (error) {
+        console.error('新增購物車資料時發生錯誤:', error);
+        throw error;
+    }
+}
+
+
 
 export {
     getProducts,
-    getCarts
+    getCarts,
+    addCarts
 }

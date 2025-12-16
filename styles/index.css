@@ -641,7 +641,8 @@ body {
     object-fit: cover;
 }
 
-.productCard a {
+.productCard button {
+    width: 100%;
     display: block;
     background-color: #000000;
     color: #ffffff;
@@ -652,11 +653,11 @@ body {
     text-decoration: none;
 }
 
-.productCard a:hover {
+.productCard button:hover {
     background-color: #301e5f;
 }
 
-.productCard a,
+.productCard button,
 .productCard h3 {
     font-size: 1.25rem;
 }
