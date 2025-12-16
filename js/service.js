@@ -4,7 +4,7 @@ import { PATH } from './constant.js';
 // 取得商品資料列表 
 async function getProducts() {
     try {
-        const res = await axios.get(PATH.products);
+        const res = await axios.get(PATH.PRODUCTS);
         return res.data.products;
     } catch (error) {
         console.error('取得產品資料時發生錯誤:', error);
@@ -51,10 +51,21 @@ async function deleteSingleCart(id) {
     }
 }
 
+// 建立客戶訂單
+
+async function addClientOrder(para){
+    try {
+        const res = await axios.post(PATH.ORDER, para);
+    } catch (error) {
+        console.error('建立訂單時發生錯誤:', error);
+    }
+}
+
 export {
     getProducts,
     getCarts,
     addCarts,
     deleteAllCarts,
-    deleteSingleCart
+    deleteSingleCart,
+    addClientOrder
 }

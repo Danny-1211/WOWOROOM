@@ -804,6 +804,11 @@ body {
     margin-right: 10px;
 }
 
+.orderInfo-input.error {
+    border: 1px solid #c72424;
+}
+
+
 .orderInfo-inputWrap {
     position: relative;
 }
