@@ -1,4 +1,4 @@
-import { getProducts, getCarts, addCarts, deleteAllCarts } from './service.js';
+import { getProducts, getCarts, addCarts, deleteAllCarts, deleteSingleCart } from './service.js';
 import { FILTER_TYPE } from './constant.js';
 
 let productsList = []; // 商品列表
@@ -19,9 +19,8 @@ const DOM = {
 async function init() {
     try {
         productsList = await getProducts();
-        cartsList = await getCarts();
         renderCard(productsList);
-        renderCartList(cartsList);
+        updateCart();
     } catch (error) {
         console.log(error);
     }
@@ -49,7 +48,6 @@ function renderCard(productsList) {
 
 // 渲染購物車列表
 function renderCartList(cartsList) {
-    console.log(cartsList)
     let tempStr = `        
         <tr>
             <th width="40%">品項</th>
@@ -72,9 +70,9 @@ function renderCartList(cartsList) {
             <td>${cart.quantity}</td>
             <td>${(cart.product.price * cart.quantity).toLocaleString()}</td>
             <td class="discardBtn">
-                <a href="#" class="material-icons">
+                <button type="button" class="material-icons actionBtn"  data-action="discardSingleBtn" data-id=${cart.id}>
                     clear
-                </a>
+                </button>
             </td>
         </tr>
         `
@@ -84,7 +82,7 @@ function renderCartList(cartsList) {
         tempStr += `
             <tr>
                 <td>
-                    <button type="button"  class="discardAllBtn">刪除所有品項</button>
+                    <button type="button"  class="discardAllBtn actionBtn" data-action="discardAllBtn">刪除所有品項</button>
                 </td>
                 <td></td>
                 <td></td>
@@ -144,17 +142,34 @@ DOM.productWarp.addEventListener('click', async function (e) {
 
 // 刪除購物車全部品項 & 刪除單筆購物車內容
 DOM.shoppingCarts.addEventListener('click', async function (e) {
-    const discardAllBtn = e.target.closest('.discardAllBtn');
-    if (!discardAllBtn) { // 如果找不到這個按鈕防呆
+    const btn = e.target.closest('.actionBtn');
+
+    if (!btn) { // 如果找不到這個按鈕防呆
         return;
     }
 
-    try {
-        await deleteAllCarts();
-        await updateCart();
-    } catch (error) {
-        console.error('刪除全部購物車失敗', error);
+    const action = btn.dataset.action;
+
+    switch (action) {
+        case 'discardAllBtn':
+            try {
+                await deleteAllCarts();
+                await updateCart();
+            } catch (error) {
+                console.error('刪除全部購物車失敗', error);
+            }
+            break;
+        case 'discardSingleBtn':
+            try {
+                const cartItemId = btn.dataset.id
+                await deleteSingleCart(cartItemId);
+                await updateCart();
+            } catch (error) {
+                console.error('刪除全部購物車失敗', error);
+            }
     }
+
+
 
 })
 

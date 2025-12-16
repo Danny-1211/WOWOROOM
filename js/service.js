@@ -42,9 +42,19 @@ async function deleteAllCarts() {
     }
 }
 
+// 刪除單筆購物車內容
+async function deleteSingleCart(id) {
+    try {
+        const res = await axios.delete(`${PATH.CARTS}/${id}`);
+    } catch (error) {
+        console.error('刪除單筆購物車資料時發生錯誤:', error);
+    }
+}
+
 export {
     getProducts,
     getCarts,
     addCarts,
-    deleteAllCarts
+    deleteAllCarts,
+    deleteSingleCart
 }
