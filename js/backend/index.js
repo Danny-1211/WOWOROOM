@@ -1,4 +1,4 @@
-import { getOrders, deleteAllOrders, deleteSingleOrders } from './service.js';
+import { getOrders, deleteAllOrders, deleteSingleOrders, ModifyOrderStatus } from './service.js';
 
 let ordersList = [];
 
@@ -8,7 +8,6 @@ const discardAllBtnDom = document.querySelector('.discardAllBtn');
 const DOM = {
     orderPageTable: orderPageTableDom,
     discardAllBtn: discardAllBtnDom,
-
 }
 
 async function init() {
@@ -58,10 +57,10 @@ function renderOrderList(ordersList) {
                 </td>
                 <td>${new Date(order.createdAt * 1000).toLocaleDateString()}</td>
                 <td class="orderStatus">
-                    <button type="button">未處理</button>
+                    <button type="button" class="actionBtn" data-id=${order.id}  data-paid=${order.paid}  data-action="status">${!order.paid ? '未處理' : '已處理'}</button>
                 </td>
                 <td>
-                    <input type="button" class="delSingleOrder-Btn" value="刪除" data-id=${order.id}>
+                    <input type="button" class="delSingleOrder-Btn actionBtn" value="刪除" data-id=${order.id} data-action="delete">
                 </td>
             </tr>
         `
@@ -80,20 +79,47 @@ DOM.discardAllBtn.addEventListener('click', async function (e) {
 })
 
 DOM.orderPageTable.addEventListener('click', async function (e) {
-    const btn = e.target.closest('.delSingleOrder-Btn');
-
+    const btn = e.target.closest('.actionBtn');
+   
     if (!btn) { // 如果找不到這個按鈕防呆
         return;
     }
 
-    const id = btn.dataset.id;
 
-    try {
-        await deleteSingleOrders(id);
-        await updateOrderList();
-    } catch (error) {
-        console.log('刪除單筆資料發生錯誤', error);
+    const action = btn.dataset.action;
+
+    switch (action) {
+        case 'status':
+            try {
+                const paid = !JSON.parse(btn.dataset.paid);
+                const id = btn.dataset.id;
+                let obj = {
+                    data: {
+                        "id": id,
+                        "paid": paid
+                    }
+                }
+                await ModifyOrderStatus(obj);
+                await updateOrderList();
+            } catch (error) {
+                console.error('更新訂單狀態失敗', error);
+            }
+            break;
+        case 'delete':
+            try {
+                const id = btn.dataset.id;
+                await deleteSingleOrders(id);
+                await updateOrderList();
+            } catch (error) {
+                console.log('刪除單筆資料發生錯誤', error);
+            }
+        default:
+            break;
     }
+
+
+
+
 
 });
 
