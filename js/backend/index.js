@@ -11,13 +11,14 @@ const DOM = {
 }
 
 async function init() {
-    updateOrderList();
+    await updateOrderList();
 }
 
 async function updateOrderList() {
     try {
         ordersList = await getOrders();
         renderOrderList(ordersList);
+        renderChart();
     } catch (error) {
         console.log('更新訂單列表發生錯誤', error)
     }
@@ -69,6 +70,32 @@ function renderOrderList(ordersList) {
     DOM.orderPageTable.innerHTML = temp;
 }
 
+function renderChart() {
+    console.log('ordersList', ordersList);
+    let columns = [];
+    ordersList.orders.forEach(order => {
+        let arr = [];
+        arr = order.products.map(product => [product.title, product.quantity]);
+        columns.push(arr);
+    });
+
+    columns = Object.entries(
+        columns.flat().reduce((sum, [title, quantity]) => {
+            sum[title] = (sum[title] || 0) + quantity;
+            return sum;
+        }, {})
+    );
+    
+    console.log(columns);
+    let chart = c3.generate({
+        bindto: "#chart",
+        data: {
+            columns: columns,
+            type: 'pie'
+        }
+    });
+}
+
 DOM.discardAllBtn.addEventListener('click', async function (e) {
     try {
         await deleteAllOrders();
@@ -80,7 +107,7 @@ DOM.discardAllBtn.addEventListener('click', async function (e) {
 
 DOM.orderPageTable.addEventListener('click', async function (e) {
     const btn = e.target.closest('.actionBtn');
-   
+
     if (!btn) { // 如果找不到這個按鈕防呆
         return;
     }
@@ -124,3 +151,6 @@ DOM.orderPageTable.addEventListener('click', async function (e) {
 });
 
 init();
+
+
+
