@@ -71,7 +71,6 @@ function renderOrderList(ordersList) {
 }
 
 function renderChart() {
-    console.log('ordersList', ordersList);
     let columns = [];
     ordersList.orders.forEach(order => {
         let arr = [];
@@ -86,7 +85,6 @@ function renderChart() {
         }, {})
     );
     
-    console.log(columns);
     let chart = c3.generate({
         bindto: "#chart",
         data: {
