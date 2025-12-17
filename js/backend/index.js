@@ -4,10 +4,14 @@ let ordersList = [];
 
 const orderPageTableDom = document.querySelector('.orderPage-table');
 const discardAllBtnDom = document.querySelector('.discardAllBtn');
+const chartDom = document.querySelector('#chart');
+const nodataTipDom = document.querySelector('.section-noDataTip');
 
 const DOM = {
     orderPageTable: orderPageTableDom,
     discardAllBtn: discardAllBtnDom,
+    chart: chartDom,
+    nodataTip: nodataTipDom
 }
 
 async function init() {
@@ -71,6 +75,16 @@ function renderOrderList(ordersList) {
 }
 
 function renderChart() {
+
+    if(ordersList.orders.length === 0 || !ordersList.orders){
+        DOM.chart.style.display = 'none';
+        DOM.nodataTip.style.display = 'block';
+        return;
+    }else{
+        DOM.chart.style.display = 'block';
+        DOM.nodataTip.style.display = 'none';
+    }
+
     let columns = [];
     ordersList.orders.forEach(order => {
         let arr = [];
@@ -84,7 +98,7 @@ function renderChart() {
             return sum;
         }, {})
     );
-    
+
     let chart = c3.generate({
         bindto: "#chart",
         data: {
