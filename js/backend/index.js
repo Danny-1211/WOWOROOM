@@ -1,17 +1,28 @@
-import { getOrders } from './service.js';
+import { getOrders, deleteAllOrders } from './service.js';
 
 let ordersList = [];
 
 const orderPageTableDom = document.querySelector('.orderPage-table');
+const discardAllBtnDom = document.querySelector('.discardAllBtn');
 
 const DOM = {
-    orderPageTable: orderPageTableDom
+    orderPageTable: orderPageTableDom,
+    discardAllBtn: discardAllBtnDom
 }
 
 async function init() {
-    ordersList = await getOrders();
-    renderOrderList(ordersList);
+    updateOrderList();
 }
+
+async function updateOrderList() {
+    try {
+        ordersList = await getOrders();
+        renderOrderList(ordersList);
+    } catch (error) {
+        console.log('更新訂單列表發生錯誤', error)
+    }
+}
+
 
 function renderOrderList(ordersList) {
     let temp = `                
@@ -41,8 +52,8 @@ function renderOrderList(ordersList) {
                 <td>${order.user.email}</td>
                 <td>
                     ${order.products.map(product => {
-                        return `<p>${product.title} x ${product.quantity}</p>`
-                    }).join('')}
+            return `<p>${product.title} x ${product.quantity}</p>`
+        }).join('')}
                 </td>
                 <td>${new Date(order.createdAt * 1000).toLocaleDateString()}</td>
                 <td class="orderStatus">
@@ -57,5 +68,13 @@ function renderOrderList(ordersList) {
 
     DOM.orderPageTable.innerHTML = temp;
 }
+
+DOM.discardAllBtn.addEventListener('click', async function (e) {
+    try {
+        await deleteAllOrders();
+        await updateOrderList();
+    } catch (error) {
+    }
+})
 
 init();

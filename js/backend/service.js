@@ -1,6 +1,7 @@
 // 打後台 api 並回傳該 data
 import { PATH, ADMIN_UID } from './constant.js';
 
+// 取得後台訂單列表
 async function getOrders() {
     const para = {
         headers: {
@@ -15,7 +16,22 @@ async function getOrders() {
     }
 }
 
+// 刪除全部訂單
+async function deleteAllOrders() {
+    const para = {
+        headers: {
+            'Authorization': ADMIN_UID
+        }
+    }
+    try {
+        const res = await axios.delete(PATH.ORDERS, para);
+    } catch (error) {
+        console.log('刪除全部訂單發生錯誤', error)
+    }
+}
+
 
 export {
-    getOrders
+    getOrders,
+    deleteAllOrders
 }
