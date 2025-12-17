@@ -30,8 +30,23 @@ async function deleteAllOrders() {
     }
 }
 
+// 刪除單筆訂單
+async function deleteSingleOrders(id) {
+    const para = {
+        headers: {
+            'Authorization': ADMIN_UID
+        }
+    }
+    try{
+        const res = await axios.delete(`${PATH.ORDERS}/${id}`, para)
+    }catch(error) {
+        console.log('刪除單筆訂單發生錯誤', error)
+    }
+}
+
 
 export {
     getOrders,
-    deleteAllOrders
+    deleteAllOrders,
+    deleteSingleOrders
 }

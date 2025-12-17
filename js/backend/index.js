@@ -1,4 +1,4 @@
-import { getOrders, deleteAllOrders } from './service.js';
+import { getOrders, deleteAllOrders, deleteSingleOrders } from './service.js';
 
 let ordersList = [];
 
@@ -7,7 +7,8 @@ const discardAllBtnDom = document.querySelector('.discardAllBtn');
 
 const DOM = {
     orderPageTable: orderPageTableDom,
-    discardAllBtn: discardAllBtnDom
+    discardAllBtn: discardAllBtnDom,
+
 }
 
 async function init() {
@@ -60,7 +61,7 @@ function renderOrderList(ordersList) {
                     <button type="button">未處理</button>
                 </td>
                 <td>
-                    <input type="button" class="delSingleOrder-Btn" value="刪除">
+                    <input type="button" class="delSingleOrder-Btn" value="刪除" data-id=${order.id}>
                 </td>
             </tr>
         `
@@ -74,7 +75,26 @@ DOM.discardAllBtn.addEventListener('click', async function (e) {
         await deleteAllOrders();
         await updateOrderList();
     } catch (error) {
+        console.log('刪除全部資料發生錯誤', error);
     }
 })
+
+DOM.orderPageTable.addEventListener('click', async function (e) {
+    const btn = e.target.closest('.delSingleOrder-Btn');
+
+    if (!btn) { // 如果找不到這個按鈕防呆
+        return;
+    }
+
+    const id = btn.dataset.id;
+
+    try {
+        await deleteSingleOrders(id);
+        await updateOrderList();
+    } catch (error) {
+        console.log('刪除單筆資料發生錯誤', error);
+    }
+
+});
 
 init();
