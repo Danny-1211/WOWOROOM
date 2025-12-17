@@ -887,10 +887,14 @@ body {
     opacity: 0.8;
 }
 
-.orderStatus a {
+.orderStatus button {
     padding: 10px;
     display: block;
     color: #0067ce;
+    background-color: transparent;
+    border-color: transparent;
+    text-decoration:underline;
+    cursor: pointer;
 }
 
 .orderTableWrap {
