@@ -4,20 +4,25 @@ let ordersList = [];
 
 const orderPageTableDom = document.querySelector('.orderPage-table');
 const discardAllBtnDom = document.querySelector('.discardAllBtn');
+const chartDom = document.querySelector('#chart');
+const nodataTipDom = document.querySelector('.section-noDataTip');
 
 const DOM = {
     orderPageTable: orderPageTableDom,
     discardAllBtn: discardAllBtnDom,
+    chart: chartDom,
+    nodataTip: nodataTipDom
 }
 
 async function init() {
-    updateOrderList();
+    await updateOrderList();
 }
 
 async function updateOrderList() {
     try {
         ordersList = await getOrders();
         renderOrderList(ordersList);
+        renderChart();
     } catch (error) {
         console.log('更新訂單列表發生錯誤', error)
     }
@@ -69,6 +74,40 @@ function renderOrderList(ordersList) {
     DOM.orderPageTable.innerHTML = temp;
 }
 
+function renderChart() {
+
+    if(ordersList.orders.length === 0 || !ordersList.orders){
+        DOM.chart.style.display = 'none';
+        DOM.nodataTip.style.display = 'block';
+        return;
+    }else{
+        DOM.chart.style.display = 'block';
+        DOM.nodataTip.style.display = 'none';
+    }
+
+    let columns = [];
+    ordersList.orders.forEach(order => {
+        let arr = [];
+        arr = order.products.map(product => [product.title, product.quantity]);
+        columns.push(arr);
+    });
+
+    columns = Object.entries(
+        columns.flat().reduce((sum, [title, quantity]) => {
+            sum[title] = (sum[title] || 0) + quantity;
+            return sum;
+        }, {})
+    );
+
+    let chart = c3.generate({
+        bindto: "#chart",
+        data: {
+            columns: columns,
+            type: 'pie'
+        }
+    });
+}
+
 DOM.discardAllBtn.addEventListener('click', async function (e) {
     try {
         await deleteAllOrders();
@@ -80,7 +119,7 @@ DOM.discardAllBtn.addEventListener('click', async function (e) {
 
 DOM.orderPageTable.addEventListener('click', async function (e) {
     const btn = e.target.closest('.actionBtn');
-   
+
     if (!btn) { // 如果找不到這個按鈕防呆
         return;
     }
@@ -124,3 +163,6 @@ DOM.orderPageTable.addEventListener('click', async function (e) {
 });
 
 init();
+
+
+

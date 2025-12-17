@@ -311,6 +311,12 @@ body {
     margin-bottom: 30px;
 }
 
+.section-noDataTip{
+    text-align: center;
+    font-size: 1.25rem;
+    color: #797979;
+}
+
 .bedAdvantage {
     display: -webkit-box;
     display: -ms-flexbox;
