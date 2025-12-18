@@ -257,7 +257,7 @@ DOM.productWarp.addEventListener('click', async function (e) {
             quantity: quantity
         }
     }
-
+    
     try {
         await addCarts(para);
         await updateCart();
