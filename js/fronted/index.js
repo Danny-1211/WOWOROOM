@@ -8,12 +8,14 @@ const productWrapDom = document.querySelector('.productWrap');
 const productSelectDom = document.querySelector('.productSelect');
 const shoppingCartTableDom = document.querySelector('.shoppingCart-table');
 const orderFormDom = document.querySelector('.orderInfo-form');
+const overflowWrapDom = document.querySelector('.overflowWrap');
 
 const DOM = {
     productWarp: productWrapDom,
     productSelect: productSelectDom,
     shoppingCarts: shoppingCartTableDom,
     orderForm: orderFormDom,
+    overflowWrap: overflowWrapDom
 }
 
 const INPUT_DOM = {
@@ -58,17 +60,28 @@ function renderCard(productsList) {
 
 // 渲染購物車列表
 function renderCartList(cartsList) {
-    let tempStr = `        
-        <tr>
-            <th width="40%">品項</th>
-            <th width="15%">單價</th>
-            <th width="15%">數量</th>
-            <th width="15%">金額</th>
-            <th width="15%"></th>
-        </tr>          
-    `;
-    tempStr += cartsList.carts.map(cart => {
-        return `
+    let hasData = cartsList.carts.length > 0;
+    let tempStr = '';
+    if (!hasData) {
+        tempStr += `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px 0;">
+                    <p>購物車暫無商品，趕快去選購吧！</p>
+                </td>
+            </tr>
+        `;
+    } else {
+        let tempStr = `        
+            <tr>
+                <th width="40%">品項</th>
+                <th width="15%">單價</th>
+                <th width="15%">數量</th>
+                <th width="15%">金額</th>
+                <th width="15%"></th>
+            </tr>          
+        `;
+        tempStr += cartsList.carts.map(cart => {
+            return `
             <tr>
             <td>
                 <div class="cardItem-title">
@@ -86,23 +99,24 @@ function renderCartList(cartsList) {
             </td>
         </tr>
         `
-    }).join('');
+        }).join('');
 
-    if (cartsList.carts.length !== 0) {
         tempStr += `
-            <tr>
-                <td>
-                    <button type="button"  class="discardAllBtn actionBtn" data-action="discardAllBtn">刪除所有品項</button>
-                </td>
-                <td></td>
-                <td></td>
-                <td>
-                    <p>總金額</p>
-                </td>
-                <td>NT$${cartsList.finalTotal.toLocaleString()}</td>
-            </tr>
+        <tr>
+            <td>
+                <button type="button"  class="discardAllBtn actionBtn" data-action="discardAllBtn">刪除所有品項</button>
+            </td>
+            <td></td>
+            <td></td>
+            <td>
+                <p>總金額</p>
+            </td>
+            <td>NT$${cartsList.finalTotal.toLocaleString()}</td>
+        </tr>
         `
     }
+
+    console.log(tempStr);
 
     DOM.shoppingCarts.innerHTML = tempStr;
 }
