@@ -288,11 +288,11 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
 
 
     const confirmResult = await Swal.fire({
-        title: '確定要送出訂單嗎？',
+        title: '確定要刪除嗎？',
         text: "送出後將開始處理您的訂單",
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#6A33F8',
+        confirmButtonColor: '#C72424',
         cancelButtonColor: '#aaa',
         confirmButtonText: '是的，送出！',
         cancelButtonText: '再檢查一下'
