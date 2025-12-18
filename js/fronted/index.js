@@ -8,12 +8,14 @@ const productWrapDom = document.querySelector('.productWrap');
 const productSelectDom = document.querySelector('.productSelect');
 const shoppingCartTableDom = document.querySelector('.shoppingCart-table');
 const orderFormDom = document.querySelector('.orderInfo-form');
+const overflowWrapDom = document.querySelector('.overflowWrap');
 
 const DOM = {
     productWarp: productWrapDom,
     productSelect: productSelectDom,
     shoppingCarts: shoppingCartTableDom,
     orderForm: orderFormDom,
+    overflowWrap: overflowWrapDom
 }
 
 const INPUT_DOM = {
@@ -58,17 +60,28 @@ function renderCard(productsList) {
 
 // 渲染購物車列表
 function renderCartList(cartsList) {
-    let tempStr = `        
-        <tr>
-            <th width="40%">品項</th>
-            <th width="15%">單價</th>
-            <th width="15%">數量</th>
-            <th width="15%">金額</th>
-            <th width="15%"></th>
-        </tr>          
-    `;
-    tempStr += cartsList.carts.map(cart => {
-        return `
+    let hasData = cartsList.carts.length > 0;
+    let tempStr = '';
+    if (!hasData) {
+        tempStr += `
+            <tr>
+                <td colspan="5" style="text-align: center; padding: 40px 0;">
+                    <p>購物車暫無商品，趕快去選購吧！</p>
+                </td>
+            </tr>
+        `;
+    } else {
+        tempStr = `        
+            <tr>
+                <th width="40%">品項</th>
+                <th width="15%">單價</th>
+                <th width="15%">數量</th>
+                <th width="15%">金額</th>
+                <th width="15%"></th>
+            </tr>          
+        `;
+        tempStr += cartsList.carts.map(cart => {
+            return `
             <tr>
             <td>
                 <div class="cardItem-title">
@@ -86,23 +99,23 @@ function renderCartList(cartsList) {
             </td>
         </tr>
         `
-    }).join('');
+        }).join('');
 
-    if (cartsList.carts.length !== 0) {
         tempStr += `
-            <tr>
-                <td>
-                    <button type="button"  class="discardAllBtn actionBtn" data-action="discardAllBtn">刪除所有品項</button>
-                </td>
-                <td></td>
-                <td></td>
-                <td>
-                    <p>總金額</p>
-                </td>
-                <td>NT$${cartsList.finalTotal.toLocaleString()}</td>
-            </tr>
+        <tr>
+            <td>
+                <button type="button"  class="discardAllBtn actionBtn" data-action="discardAllBtn">刪除所有品項</button>
+            </td>
+            <td></td>
+            <td></td>
+            <td>
+                <p>總金額</p>
+            </td>
+            <td>NT$${cartsList.finalTotal.toLocaleString()}</td>
+        </tr>
         `
     }
+
 
     DOM.shoppingCarts.innerHTML = tempStr;
 }
@@ -119,6 +132,19 @@ async function updateCart() {
 
 function validForm() {
     let isValid = true;
+
+    // 當購物車沒有商品
+    if (cartsList.carts.length === 0) {
+        isValid = false;
+        Swal.fire({
+            icon: 'error',
+            title: '購物車沒有商品',
+            timer: 2000,
+            showConfirmButton: false
+        });
+        return isValid;
+    }
+
     const cols = [
         { key: 'name', msgName: 'customerName' },
         { key: 'phone', msgName: 'customerPhone' },
@@ -149,6 +175,28 @@ async function submitOrder(e) {
         return;
     }
 
+    const confirmResult = await Swal.fire({
+        title: '確定要送出訂單嗎？',
+        text: "送出後將開始處理您的訂單",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#6A33F8',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: '是的，送出！',
+        cancelButtonText: '再檢查一下'
+    });
+
+    // 如果使用者點擊取消，則中斷函式
+    if (!confirmResult.isConfirmed) return;
+
+    Swal.fire({
+        title: '正在處理訂單...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
     let obj = {
         name: INPUT_DOM.name.value,
         tel: INPUT_DOM.phone.value,
@@ -166,9 +214,20 @@ async function submitOrder(e) {
     try {
         await addClientOrder(para);
         await updateCart();
+        await Swal.fire({
+            icon: 'success',
+            title: '訂單建立成功！',
+            timer: 2000,
+            showConfirmButton: false
+        });
         DOM.orderForm.reset();
     } catch (error) {
-        console.error('建立訂單', error);
+        console.error('建立訂單失敗', error);
+        Swal.fire({
+            icon: 'error',
+            title: '訂單送出失敗',
+            text: '伺服器似乎出了點問題，請稍後再試。'
+        });
     }
 
 }
@@ -198,12 +257,24 @@ DOM.productWarp.addEventListener('click', async function (e) {
             quantity: quantity
         }
     }
-
+    
     try {
         await addCarts(para);
         await updateCart();
+        await Swal.fire({
+            icon: 'success',
+            title: '加入購物車成功！',
+            timer: 2000,
+            showConfirmButton: false
+        });
     } catch (error) {
         console.error('新增購物車失敗', error);
+        await Swal.fire({
+            icon: 'error',
+            title: '加入購物車失敗',
+            timer: 2000,
+            showConfirmButton: false
+        });
     }
 })
 
@@ -215,15 +286,45 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
         return;
     }
 
+
+    const confirmResult = await Swal.fire({
+        title: '確定要送出訂單嗎？',
+        text: "送出後將開始處理您的訂單",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#6A33F8',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: '是的，送出！',
+        cancelButtonText: '再檢查一下'
+    });
+
+
+    if (!confirmResult.isConfirmed) return;
+
+
     const action = btn.dataset.action;
+
+
 
     switch (action) {
         case 'discardAllBtn':
             try {
                 await deleteAllCarts();
                 await updateCart();
+                await Swal.fire({
+                    icon: 'success',
+                    title: '已刪除所有品項！',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } catch (error) {
                 console.error('刪除全部購物車失敗', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: '刪除全部購物車失敗',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
             break;
         case 'discardSingleBtn':
@@ -231,8 +332,20 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
                 const cartItemId = btn.dataset.id
                 await deleteSingleCart(cartItemId);
                 await updateCart();
+                await Swal.fire({
+                    icon: 'success',
+                    title: '已刪除成功！',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } catch (error) {
-                console.error('刪除全部購物車失敗', error);
+                console.error('刪除單筆購物車失敗', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: '刪除單筆購物車失敗',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
     }
 })
