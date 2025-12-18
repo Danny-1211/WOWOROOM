@@ -298,7 +298,7 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
         cancelButtonText: '再檢查一下'
     });
 
-    // 如果使用者點擊取消，則中斷函式
+
     if (!confirmResult.isConfirmed) return;
 
 
@@ -319,6 +319,12 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
                 });
             } catch (error) {
                 console.error('刪除全部購物車失敗', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: '刪除全部購物車失敗',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
             break;
         case 'discardSingleBtn':
@@ -334,6 +340,12 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
                 });
             } catch (error) {
                 console.error('刪除單筆購物車失敗', error);
+                await Swal.fire({
+                    icon: 'error',
+                    title: '刪除單筆購物車失敗',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
     }
 })
