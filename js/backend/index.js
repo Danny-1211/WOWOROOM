@@ -76,11 +76,11 @@ function renderOrderList(ordersList) {
 
 function renderChart() {
 
-    if(ordersList.orders.length === 0 || !ordersList.orders){
+    if (ordersList.orders.length === 0 || !ordersList.orders) {
         DOM.chart.style.display = 'none';
         DOM.nodataTip.style.display = 'block';
         return;
-    }else{
+    } else {
         DOM.chart.style.display = 'block';
         DOM.nodataTip.style.display = 'none';
     }
@@ -110,10 +110,43 @@ function renderChart() {
 
 DOM.discardAllBtn.addEventListener('click', async function (e) {
     try {
+        const confirmResult = await Swal.fire({
+            title: '確定要刪除全部訂單嗎',
+            text: "送出後將開始處理您的訂單",
+            icon: 'danger',
+            showCancelButton: true,
+            confirmButtonColor: '#C72424',
+            cancelButtonColor: '#aaa',
+            confirmButtonText: '是的，送出！',
+            cancelButtonText: '再檢查一下'
+        });
+
+        if (!confirmResult.isConfirmed) return;
+
+        Swal.fire({
+            title: '正在更新訂單狀態...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         await deleteAllOrders();
         await updateOrderList();
+        Swal.fire({
+            icon: 'success',
+            title: '刪除全部訂單成功！',
+            timer: 2000,
+            showConfirmButton: false
+        });
     } catch (error) {
         console.log('刪除全部資料發生錯誤', error);
+        Swal.fire({
+            icon: 'error',
+            title: '刪除全部訂單失敗',
+            timer: 2000,
+            showConfirmButton: false
+        });
     }
 })
 
@@ -127,6 +160,8 @@ DOM.orderPageTable.addEventListener('click', async function (e) {
 
     const action = btn.dataset.action;
 
+
+
     switch (action) {
         case 'status':
             try {
@@ -138,19 +173,77 @@ DOM.orderPageTable.addEventListener('click', async function (e) {
                         "paid": paid
                     }
                 }
+
+                const confirmResult = await Swal.fire({
+                    title: '確定要修改訂單狀態嗎',
+                    text: "送出後將開始處理您的訂單",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#6A33F8',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: '是的，送出！',
+                    cancelButtonText: '再檢查一下'
+                });
+
+                if (!confirmResult.isConfirmed) return;
+
+                Swal.fire({
+                    title: '正在更新訂單狀態...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 await ModifyOrderStatus(obj);
                 await updateOrderList();
+                Swal.fire({
+                    icon: 'success',
+                    title: '更新訂單成功！',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } catch (error) {
                 console.error('更新訂單狀態失敗', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '更新訂單狀態失敗',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
             break;
         case 'delete':
             try {
                 const id = btn.dataset.id;
+                const confirmResult = await Swal.fire({
+                    title: '確定刪除這筆訂單嗎',
+                    text: "送出後將開始處理您的訂單",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#6A33F8',
+                    cancelButtonColor: '#aaa',
+                    confirmButtonText: '是的，送出！',
+                    cancelButtonText: '再檢查一下'
+                });
+
+                if (!confirmResult.isConfirmed) return;
                 await deleteSingleOrders(id);
                 await updateOrderList();
+                Swal.fire({
+                    icon: 'success',
+                    title: '刪除成功！',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } catch (error) {
                 console.log('刪除單筆資料發生錯誤', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: '刪除單筆資料失敗',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             }
         default:
             break;
