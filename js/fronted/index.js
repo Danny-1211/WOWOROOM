@@ -71,7 +71,7 @@ function renderCartList(cartsList) {
             </tr>
         `;
     } else {
-        let tempStr = `        
+        tempStr = `        
             <tr>
                 <th width="40%">品項</th>
                 <th width="15%">單價</th>
@@ -116,7 +116,6 @@ function renderCartList(cartsList) {
         `
     }
 
-    console.log(tempStr);
 
     DOM.shoppingCarts.innerHTML = tempStr;
 }
@@ -133,6 +132,19 @@ async function updateCart() {
 
 function validForm() {
     let isValid = true;
+
+    // 當購物車沒有商品
+    if (cartsList.carts.length === 0) {
+        isValid = false;
+        Swal.fire({
+            icon: 'error',
+            title: '購物車沒有商品',
+            timer: 2000,
+            showConfirmButton: false
+        });
+        return isValid;
+    }
+
     const cols = [
         { key: 'name', msgName: 'customerName' },
         { key: 'phone', msgName: 'customerPhone' },
@@ -163,6 +175,28 @@ async function submitOrder(e) {
         return;
     }
 
+    const confirmResult = await Swal.fire({
+        title: '確定要送出訂單嗎？',
+        text: "送出後將開始處理您的訂單",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#6A33F8',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: '是的，送出！',
+        cancelButtonText: '再檢查一下'
+    });
+
+    // 如果使用者點擊取消，則中斷函式
+    if (!confirmResult.isConfirmed) return;
+
+    Swal.fire({
+        title: '正在處理訂單...',
+        allowOutsideClick: false,
+        didOpen: () => {
+            Swal.showLoading();
+        }
+    });
+
     let obj = {
         name: INPUT_DOM.name.value,
         tel: INPUT_DOM.phone.value,
@@ -180,9 +214,20 @@ async function submitOrder(e) {
     try {
         await addClientOrder(para);
         await updateCart();
+        await Swal.fire({
+            icon: 'success',
+            title: '訂單建立成功！',
+            timer: 2000,
+            showConfirmButton: false
+        });
         DOM.orderForm.reset();
     } catch (error) {
-        console.error('建立訂單', error);
+        console.error('建立訂單失敗', error);
+        Swal.fire({
+            icon: 'error',
+            title: '訂單送出失敗',
+            text: '伺服器似乎出了點問題，請稍後再試。'
+        });
     }
 
 }
@@ -216,8 +261,20 @@ DOM.productWarp.addEventListener('click', async function (e) {
     try {
         await addCarts(para);
         await updateCart();
+        await Swal.fire({
+            icon: 'success',
+            title: '加入購物車成功！',
+            timer: 2000,
+            showConfirmButton: false
+        });
     } catch (error) {
         console.error('新增購物車失敗', error);
+        await Swal.fire({
+            icon: 'error',
+            title: '加入購物車失敗',
+            timer: 2000,
+            showConfirmButton: false
+        });
     }
 })
 
@@ -229,13 +286,37 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
         return;
     }
 
+
+    const confirmResult = await Swal.fire({
+        title: '確定要送出訂單嗎？',
+        text: "送出後將開始處理您的訂單",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#6A33F8',
+        cancelButtonColor: '#aaa',
+        confirmButtonText: '是的，送出！',
+        cancelButtonText: '再檢查一下'
+    });
+
+    // 如果使用者點擊取消，則中斷函式
+    if (!confirmResult.isConfirmed) return;
+
+
     const action = btn.dataset.action;
+
+
 
     switch (action) {
         case 'discardAllBtn':
             try {
                 await deleteAllCarts();
                 await updateCart();
+                await Swal.fire({
+                    icon: 'success',
+                    title: '已刪除所有品項！',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } catch (error) {
                 console.error('刪除全部購物車失敗', error);
             }
@@ -245,8 +326,14 @@ DOM.shoppingCarts.addEventListener('click', async function (e) {
                 const cartItemId = btn.dataset.id
                 await deleteSingleCart(cartItemId);
                 await updateCart();
+                await Swal.fire({
+                    icon: 'success',
+                    title: '已刪除成功！',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } catch (error) {
-                console.error('刪除全部購物車失敗', error);
+                console.error('刪除單筆購物車失敗', error);
             }
     }
 })
